@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="da" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alis Music Store - Albums og Kunder</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #b3b3b3;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        header, nav {
+            background-color: #1db954;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #14833b;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .box {
+            background-color: #181818;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1, h2 {
+            color: white;
+        }
+
+        .album-list, .customer-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .album-item, .customer-item {
+            background-color: #181818;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            width: 300px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .album-item a, .album-item button, .customer-item a, .customer-item button {
+            margin-top: 10px;
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .album-item a:hover, .album-item button:hover, .customer-item a:hover, .customer-item button:hover {
+            background-color: #c0392b;
+        }
+
+        footer {
+            background-color: #121212;
+            color: #888;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        button {
+            background-color: #1db954;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #14833b;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+            }
+
+            .album-item, .customer-item {
+                width: 100%;
+            }
+
+            input[type="text"], input[type="email"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Alis Music Store</h1>
+    <nav>
+        <ul>
+            <li><a href="/">Adminpanel</a></li>
+            <li><a href="/albums">Albums</a></li>
+            <li><a href="/customers">Kunder</a></li>
+            <li><a href="/stores">Butikker</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <!-- Opret ny album -->
+    <section class="box">
+        <h2>Opret nyt Album</h2>
+        <form action="/albums/save" method="post">
+            <input type="text" name="name" placeholder="Album Navn" required>
+            <input type="text" name="artist" placeholder="Artist" required>
+            <input type="text" name="genre" placeholder="Genre" required>
+            <button type="submit">Opret Album</button>
+        </form>
+    </section>
+
+    <!-- Album liste -->
+    <section class="box">
+        <h2>Vores Albums</h2>
+        <div class="album-list">
+            <th:block th:each="album : ${albums}">
+                <div class="album-item">
+                    <h3 th:text="${album.name}">Album navn</h3>
+                    <p>Artist: <span th:text="${album.artist}"></span></p>
+                    <p>Udgivelsesår: <span th:text="${album.releaseYear}"></span></p>
+                    <p>Genre: <span th:text="${album.genre}"></span></p>
+                    <p>Vinyl?: <span th:text="${album.availableOnVinyl ? 'Ja' : 'Nej'}"></span></p>
+
+                    <a th:href="@{/albums/edit/{id}(id=${album.id})}">Rediger</a>
+
+                    <form action="/albums/{id}" method="post" th:action="'/albums/' + ${album.id}">
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <button type="submit">Slet</button>
+                    </form>
+                </div>
+            </th:block>
+        </div>
+    </section>
+
+    <!-- Opret ny kunde -->
+    <section class="box">
+        <h2>Opret ny Kunde</h2>
+        <form action="/api/customers/create" method="post">
+            <input type="text" name="name" placeholder="Navn" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <button type="submit">Opret Kunde</button>
+        </form>
+    </section>
+
+    <!-- Kunder liste -->
+    <section class="box">
+        <h2>Alle Kunder</h2>
+        <div class="customer-list">
+            <th:block th:each="customer : ${customers}">
+                <div class="customer-item">
+                    <h3 th:text="${customer.name}">Navn</h3>
+                    <p>Email: <span th:text="${customer.email}"></span></p>
+
+                    <a th:href="@{/customers/edit/{id}(id=${customer.id})}">Rediger</a>
+
+                    <form th:action="@{/customers/{id}(id=${customer.id})}" method="post">
+                        <input type="hidden" name="_method" value="DELETE" />
+                        <button type="submit">Slet</button>
+                    </form>
+                </div>
+            </th:block>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2025 Alis Music Store. Alle rettigheder forbeholdes.</p>
+</footer>
+
+</body>
+</html>
